@@ -6,7 +6,13 @@ using System.Threading.Tasks;
 
 namespace AoC24.Days
 {
-    public static class Day1
+    public interface IChallengeYouToADanceOff
+    {
+        abstract static string Ch1(string input);
+        abstract static string Ch2(string input);
+    }
+
+    public class Day1 : IChallengeYouToADanceOff
     {
         public static string Ch1(string input)
         {
