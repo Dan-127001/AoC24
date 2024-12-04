@@ -9,7 +9,7 @@ namespace AoC24.Days
     internal class Day3 : IChallengeYouToADanceOff
     {
 
-        public static string Ch1(string inputLines)
+        public string Ch1(string inputLines)
         {
             List<string> validParts = new();
             int numOffset = 4;
@@ -62,7 +62,7 @@ namespace AoC24.Days
             return total.ToString();
         }
 
-        public static string Ch2(string inputLines)
+        public string Ch2(string inputLines)
         {
             List<string> validParts = new();
             int numOffset = 4;

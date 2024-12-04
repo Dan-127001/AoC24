@@ -8,13 +8,13 @@ namespace AoC24.Days
 {
     public interface IChallengeYouToADanceOff
     {
-        abstract static string Ch1(string input);
-        abstract static string Ch2(string input);
+        abstract string Ch1(string input);
+        abstract string Ch2(string input);
     }
 
     public class Day1 : IChallengeYouToADanceOff
     {
-        public static string Ch1(string input)
+        public string Ch1(string input)
         {
             List<int> left = new();
             List<int> right = new();
@@ -38,7 +38,7 @@ namespace AoC24.Days
             return totalDiff.ToString();
         }
 
-        public static string Ch2(string input)
+        public string Ch2(string input)
         {
             List<int> left = new();
             List<int> right = new();

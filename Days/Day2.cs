@@ -8,7 +8,7 @@ namespace AoC24.Days
 {
     public class Day2 : IChallengeYouToADanceOff
     {
-        public static string Ch1(string input)
+        public string Ch1(string input)
         {
             var lines = input.Split(Environment.NewLine);
 
@@ -49,7 +49,7 @@ namespace AoC24.Days
             return safe.ToString();
         }
 
-        public static string Ch2(string input)
+        public string Ch2(string input)
         {
             var lines = input.Split(Environment.NewLine);
 
@@ -68,7 +68,7 @@ namespace AoC24.Days
             return safe.ToString();
         }
 
-        private static bool IsLineSafe_OneErrorKk(int[] lvls, bool isIncrease, bool checkForSafeByRemovingOneMore)
+        private bool IsLineSafe_OneErrorKk(int[] lvls, bool isIncrease, bool checkForSafeByRemovingOneMore)
         {
             int prev = lvls[0];
 
