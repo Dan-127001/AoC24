@@ -1,5 +1,6 @@
 ﻿using AoC24.Benchmark;
 using AoC24.Days;
+using AoC24.Days.Day6_Helper.Ch1;
 using BenchmarkDotNet.Running;
 using System.Diagnostics;
 
