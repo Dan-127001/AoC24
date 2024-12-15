@@ -7,7 +7,7 @@ using System.Diagnostics;
 //return;
 string inp = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "input.txt"));
 
-var day = new Day14();
+var day = new Day15();
 
 Console.WriteLine(day.Ch1(inp));
 Console.WriteLine(day.Ch2(inp));
