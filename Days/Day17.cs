@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -13,40 +14,60 @@ namespace AoC24.Days
     {
         public string Ch1(string input)
         {
-            return "";
             var machine = new Machine();
             SetMachineInits(input, machine);
             machine.RunUntilHalt();
 
-            return string.Join(",", machine.Output);
+            bool isSameAsInput = machine.Output.SequenceEqual(machine.Instructions);
+
+            if (isSameAsInput)
+            {
+                Console.WriteLine("MATCH");
+            }
+
+            Console.WriteLine(string.Join(",", machine.Instructions));
+            Console.WriteLine(string.Join(",", machine.Output));
+
+            return "";
         }
 
-        private void SetMachineInits(string input, Machine machine, int? AOverride = null)
+        private void SetMachineInits(string input, Machine machine, ulong? AOverride = null)
         {
             var lines = input.Split(Environment.NewLine);
-            machine.A_Val = AOverride ?? int.Parse(lines[0].Split(": ")[1]);
-            machine.A = AOverride ?? int.Parse(lines[0].Split(": ")[1]);
-            machine.B = int.Parse(lines[1].Split(": ")[1]);
-            machine.C = int.Parse(lines[2].Split(": ")[1]);
 
-            machine.Instructions = lines[4].Split(": ")[1].Split(",").Select(x => int.Parse(x)).ToArray();
+            var aVal = AOverride ?? ulong.Parse(lines[0].Split(": ")[1]);
+            //var aVal = AOverride ?? Convert.ToUInt64(lines[0].Split(": ")[1], 2);
+
+            machine.A_Val = aVal;
+            machine.A = aVal;
+            machine.B = ulong.Parse(lines[1].Split(": ")[1]);
+            machine.C = ulong.Parse(lines[2].Split(": ")[1]);
+
+            machine.Instructions = lines[4].Split(": ")[1].Split(",").Select(x => ulong.Parse(x)).ToArray();
             machine.InstructionsLength = machine.Instructions.Length;
         }
 
         public string Ch2(string input)
         {
-            int amountOfMachines = 15;
+            //var ints = input.Split(Environment.NewLine).Select(x => int.Parse(x)).ToArray();
 
-            HashSet<int> skip = [715827882, 572662305, 429496729, 286331152, 143165576, 0];
+            ////print every int int dez, oct, bin
+            //foreach (var integ in ints)
+            //{
+            //    Console.WriteLine(Convert.ToString(integ, 2) + "  \t" + integ.ToString("X") + "\t" + integ.ToString());
+            //}
+
+            //return "";
+            int amountOfMachines = 15;
 
             for (int i = 0; i < amountOfMachines; i++)
             {
-                int startingA = startingA = (int)(int.MaxValue * ((double)i / amountOfMachines));
+                var startingA = (ulong)(ulong.MaxValue * ((double)i / amountOfMachines));
 
-                if (skip.Contains(startingA))
-                    continue;
+                //if (skip.Contains(startingA))
+                //    continue;
 
-                int endA = (int)(int.MaxValue * ((double)(i + 1) / amountOfMachines));
+                var endA = (ulong)(ulong.MaxValue * ((double)(i + 1) / amountOfMachines));
                 Task.Run(() =>
                 {
                     try
@@ -73,54 +94,44 @@ namespace AoC24.Days
 
         public class Machine
         {
-            public int A_Val { get; set; }
-            public int B_Val { get; set; }
-            public int C_Val { get; set; }
+            public ulong A_Val { get; set; }
+            public ulong B_Val { get; set; }
+            public ulong C_Val { get; set; }
 
-            public int A { get; set; }
-            public int B { get; set; }
-            public int C { get; set; }
+            public ulong A { get; set; }
+            public ulong B { get; set; }
+            public ulong C { get; set; }
 
-            public int DesiredOutcomePointer { get; set; }
+            public int DesiredOutcomeCheckPointer { get; set; }
 
-            public int[] Instructions { get; set; }
+            public ulong[] Instructions { get; set; }
             public int InstructionsLength { get; set; }
 
             public int InstrPointer { get; set; }
-            public List<int> Output { get; set; } = new();
+            public List<ulong> Output { get; set; } = new();
 
             public bool Reset { get; set; }
             public bool CheckIfOutputEqInput { get; set; }
-            public int EndA { get; set; }
+            public ulong EndA { get; set; }
             public bool Ended { get; set; }
-
-            int StepsTakenWithoutOutput = 0;
 
             public void RunUntilHalt()
             {
                 Debug.Assert(A == A_Val);
                 Console.WriteLine("Statring with " + A);
-                while (DesiredOutcomePointer < InstructionsLength)
+
+                while (DesiredOutcomeCheckPointer < InstructionsLength)
                 {
                     while (InstrPointer < InstructionsLength - 1)
                     {
                         Execute(Instructions[InstrPointer], Instructions[InstrPointer + 1]);
-                        StepsTakenWithoutOutput++;
-
-                        if(StepsTakenWithoutOutput > 2000)
-                        {
-                            ResetMachine();
-                            Console.WriteLine("loop " + A_Val);
-                            continue;
-                        }
-
                         if (CheckIfOutputEqInput && (Reset))
                         {
                             ResetMachine();
                         }
                     }
 
-                    if (DesiredOutcomePointer < InstructionsLength)
+                    if (DesiredOutcomeCheckPointer < InstructionsLength)
                     {
                         ResetMachine();
                         if (A_Val > EndA)
@@ -137,27 +148,93 @@ namespace AoC24.Days
                 }
                 else
                 {
+                    Console.WriteLine("FOUND IT");
+                    Console.WriteLine("FOUND IT");
+                    Console.WriteLine("FOUND IT");
+                    Console.WriteLine("FOUND IT");
+                    Console.WriteLine("FOUND IT");
+                    Console.WriteLine("FOUND IT");
+                    Console.WriteLine("FOUND IT");
                     Console.WriteLine(A_Val.ToString());
+                    Console.WriteLine("FOUND IT");
+                    Console.WriteLine("FOUND IT");
+                    Console.WriteLine("FOUND IT");
+                    Console.WriteLine("FOUND IT");
+                    Console.WriteLine("FOUND IT");
                 }
             }
 
+            //ulong hasToHave = 0x35528BB1;
+            //ulong skip = 0xffffffff;
+
+            //ulong hasToHave = 0x49C35528BB1;
+            //ulong skip = 0xffffffffffff;
+
+            //ulong hasToHave = 0xC35528BB1;
+            //ulong skip = 0xfffffffff;
+
+            //ulong hasToHave = 0x528BB1;
+            //ulong skip = 0xffffff;
+
+            ulong hasToHave = 0xF5D3C0F;
+            //ulong hasToHave = 0xF93C0F;
+            //ulong hasToHave = 0x053C0F;
+
+            //ulong hasToHave = 0x3C0F;
+            ulong skip = 0xfffffff;
+
+            //ulong hasToHave = 0xE49C35528BB1;
+            //ulong skip = 0xffffffffffff;
+
             private void ResetMachine()
             {
-                InstrPointer = 0;
-                DesiredOutcomePointer = 0;
+                if (DesiredOutcomeCheckPointer >= InstructionsLength - 1)
+                {
+                    if ((A_Val & 0x3C0F) != 0x3C0F && (A_Val & 0x49C35528BB1) != 0x49C35528BB1)
+                        Console.WriteLine("+++++++++Here+++++++++");
 
-                A_Val++;
+                    //Console.WriteLine(A_Val + "," + DesiredOutcomeCheckPointer);
+
+                    //bin oct dez
+                    Console.WriteLine(UlongToBinaryString(A_Val) + "  \t" + (A_Val).ToString("X") + "  \t" + Conversion.Oct(A_Val) + "  \t" + (A_Val).ToString() + "  \t" + DesiredOutcomeCheckPointer);
+                }
+
+                InstrPointer = 0;
+                DesiredOutcomeCheckPointer = 0;
+
+                A_Val += skip + 1;
+
+                while ((A_Val & hasToHave) != hasToHave)
+                {
+                    A_Val = (A_Val & ~skip) | hasToHave;
+                }
 
                 A = A_Val;
                 B = B_Val;
                 C = C_Val;
 
-                StepsTakenWithoutOutput = 0;
-
                 Reset = false;
             }
+            static string UlongToBinaryString(ulong value)
+            {
+                char[] bits = new char[64];
+                // Initialize all bits to '0'
+                for (int i = 0; i < 64; i++)
+                {
+                    bits[i] = '0';
+                }
 
-            public void Execute(int instrType, int operand)
+                int index = 63;
+                while (value != 0)
+                {
+                    bits[index--] = (value & 1) == 1 ? '1' : '0';
+                    value >>= 1;
+                }
+
+                // Return the full 64-bit binary string
+                return new string(bits);
+            }
+            public void Execute(ulong instrType, ulong operand)
             {
                 bool jump = true;
 
@@ -194,9 +271,9 @@ namespace AoC24.Days
                 if (jump)
                     InstrPointer += 2;
             }
-            private void _0_Division(int operand)
+            private void _0_Division(ulong operand)
             {
-                var val = (1 << GetCombo(operand));
+                var val = (1UL << (int)GetCombo(operand));
 
                 if (val == 0)
                 {
@@ -207,7 +284,7 @@ namespace AoC24.Days
                 A = (A / val);
             }
 
-            private void _1_bxl(int operand)
+            private void _1_bxl(ulong operand)
             {
                 var val1 = B;
                 var val2 = operand;
@@ -215,38 +292,40 @@ namespace AoC24.Days
                 B = val1 ^ val2;
             }
 
-            private void _2_bst(int operand)
+            private void _2_bst(ulong operand)
             {
                 B = (GetCombo(operand) % 8);
             }
 
-            private void _3_jnz(int operand, ref bool jump)
+            private void _3_jnz(ulong operand, ref bool jump)
             {
                 if (A == 0)
                     return;
 
-                InstrPointer = operand;
+                InstrPointer = (int)operand;
                 jump = false;
             }
 
-            private void _4_bxc(int operand)
+            private void _4_bxc(ulong operand)
             {
                 B = B ^ C;
             }
 
-            private void _5_out(int operand)
+            private void _5_out(ulong operand)
             {
-                var nextVal = GetCombo(operand) % 8;
+                var nextVal = GetCombo(operand) % 8UL;
 
                 if (CheckIfOutputEqInput)
                 {
-                    if (DesiredOutcomePointer < InstructionsLength && nextVal == Instructions[DesiredOutcomePointer])
+                    if (DesiredOutcomeCheckPointer < InstructionsLength && nextVal == Instructions[DesiredOutcomeCheckPointer])
                     {
-                        DesiredOutcomePointer++;
-                        StepsTakenWithoutOutput = 0;
+                        DesiredOutcomeCheckPointer++;
                     }
                     else
                     {
+                        if (DesiredOutcomeCheckPointer > InstructionsLength)
+                            Console.WriteLine(DesiredOutcomeCheckPointer);
+
                         Reset = true;
                         return;
                     }
@@ -257,9 +336,9 @@ namespace AoC24.Days
                 }
             }
 
-            private void _6_bdv(int operand)
+            private void _6_bdv(ulong operand)
             {
-                var val = (1 << GetCombo(operand));
+                var val = (1UL << (int)GetCombo(operand));
 
                 if (val == 0)
                 {
@@ -270,9 +349,9 @@ namespace AoC24.Days
                 B = A / val;
             }
 
-            private void _7_cdv(int operand)
+            private void _7_cdv(ulong operand)
             {
-                var val = (1 << GetCombo(operand));
+                var val = (1UL << (int)GetCombo(operand));
 
                 if (val == 0)
                 {
@@ -283,7 +362,7 @@ namespace AoC24.Days
                 C = A / val;
             }
 
-            private int GetCombo(int operand)
+            private ulong GetCombo(ulong operand)
             {
                 switch (operand)
                 {
