@@ -1,6 +1,7 @@
 ﻿using AoC24.Helper;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,114 +11,162 @@ namespace AoC24.Days
     public class Day20 : IChallengeYouToADanceOff
     {
         Pos[,] Map;
-        Vector2Int Start, End;
+        Vector2Int Start;
+        Vector2Int End;
+
         public string Ch1(string input)
         {
             Init(input);
 
-            var res = GetNormalLength();
-            CheckCheatedOptions(2, 100, res);
+            NormalRun();
+
+            var totalGoodCheatRuns = CheckShortcuts(2, 100);
+
+            return totalGoodCheatRuns.ToString();
         }
 
-        private void CheckCheatedOptions(int jumps, int totalStepsSavedMin, int normalSpeed)
+        private int CheckShortcuts(int maxRangeOfShortcuts, int minTimeSafed)
         {
-            int length = 0;
-
-            var curr = Start;
-            while (curr != End)
+            var currPos = Start;
+            int totalGoodCheatRuns = 0;
+            
+            while (currPos != End)
             {
-                Map[curr.X, curr.Y].Visited = true;
+                var possible = GetPossiblePositionsWithShortcuts(currPos, maxRangeOfShortcuts, minTimeSafed);
 
-                if (curr.X + 1 < Map.GetLength(0) && Map[curr.X + 1, curr.Y] is { IsWall: false, Visited: false })
-                {
-                    curr = new Vector2Int(curr.X + 1, curr.Y);
-                }
-                else if (curr.X - 1 >= 0 && Map[curr.X - 1, curr.Y] is { IsWall: false, Visited: false })
-                {
-                    curr = new Vector2Int(curr.X - 1, curr.Y);
-                }
-                else if (curr.Y + 1 < Map.GetLength(1) && Map[curr.X, curr.Y + 1] is { IsWall: false, Visited: false })
-                {
-                    curr = new Vector2Int(curr.X, curr.Y + 1);
-                }
-                else if (curr.Y - 1 >= 0 && Map[curr.X, curr.Y - 1] is { IsWall: false, Visited: false })
-                {
-                    curr = new Vector2Int(curr.X, curr.Y - 1);
-                }
+                totalGoodCheatRuns += possible;
 
-                length++;
+                Map[currPos.X, currPos.Y].VisitedCheatRun = true;
+
+                if (currPos.X > 0 && !Map[currPos.X - 1, currPos.Y].IsWall && !Map[currPos.X - 1, currPos.Y].VisitedCheatRun)
+                {
+                    currPos = new Vector2Int(currPos.X - 1, currPos.Y);
+                }
+                else if (currPos.Y > 0 && !Map[currPos.X, currPos.Y - 1].IsWall && !Map[currPos.X, currPos.Y - 1].VisitedCheatRun)
+                {
+                    currPos = new Vector2Int(currPos.X, currPos.Y - 1);
+                }
+                else if (currPos.X < Map.GetLength(0) && !Map[currPos.X + 1, currPos.Y].IsWall && !Map[currPos.X + 1, currPos.Y].VisitedCheatRun)
+                {
+                    currPos = new Vector2Int(currPos.X + 1, currPos.Y);
+                }
+                else if (currPos.Y < Map.GetLength(1) && !Map[currPos.X, currPos.Y + 1].IsWall && !Map[currPos.X, currPos.Y + 1].VisitedCheatRun)
+                {
+                    currPos = new Vector2Int(currPos.X, currPos.Y + 1);
+                }
             }
 
-            return length;
+            return totalGoodCheatRuns;
         }
 
-        private int GetNormalLength()
+        private int GetPossiblePositionsWithShortcuts(Vector2Int currPos, int maxRangeOfShortcuts, int minTimeSafed)
         {
-            int length = 0;
+            var pathStepAtCurrentPos = Map[currPos.X, currPos.Y].PathStep;
+            int amountOfPossibleTimeSafes = 0;
 
-            var curr = Start;
-            while (curr != End)
+            for (int x = -maxRangeOfShortcuts; x <= maxRangeOfShortcuts; x++)
             {
-                Map[curr.X, curr.Y].Visited = true;
+                for (int y = -maxRangeOfShortcuts; y <= maxRangeOfShortcuts; y++)
+                {
+                    if (x == 0 && y == 0)
+                        continue;
+                    if (currPos.X + x < 0 || currPos.X + x >= Map.GetLength(0) || currPos.Y + y < 0 || currPos.Y + y >= Map.GetLength(1))
+                        continue;
+                    var manhatten = Math.Abs(x) + Math.Abs(y);
+                    if (manhatten > maxRangeOfShortcuts)
+                        continue;
 
-                if (curr.X + 1 < Map.GetLength(0) && Map[curr.X + 1, curr.Y] is { IsWall: false, Visited: false })
-                {
-                    curr = new Vector2Int(curr.X + 1, curr.Y);
-                }
-                else if (curr.X - 1 >= 0 && Map[curr.X - 1, curr.Y] is { IsWall: false, Visited: false })
-                {
-                    curr = new Vector2Int(curr.X - 1, curr.Y);
-                }
-                else if (curr.Y + 1 < Map.GetLength(1) && Map[curr.X, curr.Y + 1] is { IsWall: false, Visited: false })
-                {
-                    curr = new Vector2Int(curr.X, curr.Y + 1);
-                }
-                else if (curr.Y - 1 >= 0 && Map[curr.X, curr.Y - 1] is { IsWall: false, Visited: false })
-                {
-                    curr = new Vector2Int(curr.X, curr.Y - 1);
-                }
 
-                length++;
+                    var el1 = Map[currPos.X + x, currPos.Y + y];
+                    if (!el1.IsWall && el1.PathStep - pathStepAtCurrentPos - manhatten >= minTimeSafed)
+                    {
+                        amountOfPossibleTimeSafes++;
+                    }
+
+                }
             }
 
-            return length;
+            return amountOfPossibleTimeSafes;
         }
 
-        private void Init(string input)
+        private void NormalRun()
+        {
+            var currPos = Start;
+            int currentStepCounter = 0;
+
+            while (currPos != End)
+            {
+                Map[currPos.X, currPos.Y].VisitedNormalRun = true;
+                Map[currPos.X, currPos.Y].PathStep = currentStepCounter;
+
+                if (currPos.X > 0 && !Map[currPos.X - 1, currPos.Y].IsWall && !Map[currPos.X - 1, currPos.Y].VisitedNormalRun)
+                {
+                    currPos = new Vector2Int(currPos.X - 1, currPos.Y);
+                }
+                else if (currPos.Y > 0 && !Map[currPos.X, currPos.Y - 1].IsWall && !Map[currPos.X, currPos.Y - 1].VisitedNormalRun)
+                {
+                    currPos = new Vector2Int(currPos.X, currPos.Y - 1);
+                }
+                else if (currPos.X < Map.GetLength(0) && !Map[currPos.X + 1, currPos.Y].IsWall && !Map[currPos.X + 1, currPos.Y].VisitedNormalRun)
+                {
+                    currPos = new Vector2Int(currPos.X + 1, currPos.Y);
+                }
+                else if (currPos.Y < Map.GetLength(1) && !Map[currPos.X, currPos.Y + 1].IsWall && !Map[currPos.X, currPos.Y + 1].VisitedNormalRun)
+                {
+                    currPos = new Vector2Int(currPos.X, currPos.Y + 1);
+                }
+
+                currentStepCounter++;
+            }
+
+            Map[End.X, End.Y].PathStep = currentStepCounter;
+            Map[End.X, End.Y].VisitedNormalRun = true;
+        }
+
+        void Init(string input)
         {
             var lines = input.Split(Environment.NewLine);
-
             Map = new Pos[lines[0].Length, lines.Length];
 
             for (int y = 0; y < lines.Length; y++)
             {
-                for (int x = 0; x < lines[0].Length; x++)
+                var line = lines[y];
+                for (int x = 0; x < line.Length; x++)
                 {
-                    Map[x, y] = new() { IsWall = lines[y][x] == '#', Visited = false, };
+                    Map[x, y] = new Pos()
+                    {
+                        IsWall = line[x] == '#',
+                        PathStep = int.MaxValue,
+                        VisitedNormalRun = false,
+                    };
 
-                    if (lines[y][x] == 'S')
-                    {
+                    if (line[x] == 'S')
                         Start = new Vector2Int(x, y);
-                    }
-                    else if (lines[y][x] == 'E')
-                    {
+                    else if (line[x] == 'E')
                         End = new Vector2Int(x, y);
-                    }
                 }
             }
         }
 
         public string Ch2(string input)
         {
-            return "";
+            Init(input);
+
+            NormalRun();
+
+            var totalGoodCheatRuns = CheckShortcuts(20, 100);
+
+            return totalGoodCheatRuns.ToString();
         }
+
 
         public class Pos
         {
             public bool IsWall { get; set; }
-            public bool Visited { get; set; }
+            public int PathStep { get; set; }
 
-            public int CurrentLength { get; set; }
+            public bool VisitedNormalRun { get; set; }
+            public bool VisitedCheatRun { get; set; }
         }
     }
 }
