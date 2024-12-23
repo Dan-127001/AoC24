@@ -110,20 +110,6 @@ namespace AoC24.Days
                 var latestPos = Numpad[latestKey];
                 var diff = newPos - latestPos;
 
-                if (diff.X > 0 && diff.Y < 0)
-                {
-                    for (int i = 0; i < diff.X; i++)
-                    {
-                        stringBuilder.Append('>');
-                    }
-                    for (int i = 0; i < Math.Abs(diff.Y); i++)
-                    {
-                        stringBuilder.Append('^');
-                    }
-                    stringBuilder.Append('A');
-                    return stringBuilder.ToString();
-                }
-
                 if (diff.X < 0)
                 {
                     for (int i = 0; i < Math.Abs(diff.X); i++)
@@ -131,7 +117,6 @@ namespace AoC24.Days
                         stringBuilder.Append('<');
                     }
                 }
-
 
                 if (diff.Y > 0)
                 {
@@ -141,7 +126,6 @@ namespace AoC24.Days
                     }
                 }
 
-
                 if (diff.Y < 0)
                 {
                     for (int i = 0; i < Math.Abs(diff.Y); i++)
@@ -149,6 +133,7 @@ namespace AoC24.Days
                         stringBuilder.Append('^');
                     }
                 }
+
                 if (diff.X > 0)
                 {
                     for (int i = 0; i < diff.X; i++)
@@ -172,106 +157,132 @@ namespace AoC24.Days
 
             public static ulong GetDirKeys_Dir(char newKey, int toDo)
             {
-                var prevChar = CurrentMachineChar[toDo];
-                //ulong memorizedValue = ulong.MaxValue;
-
-
-                if (Memorized.TryGetValue((prevChar, newKey), out var dic))
+                try
                 {
-                    if (dic.TryGetValue(toDo, out var res))
+
+                    var prevChar = CurrentMachineChar[toDo];
+                    //ulong memorizedValue = ulong.MaxValue;
+
+
+                    if (Memorized.TryGetValue((prevChar, newKey), out var dic))
                     {
-                        CurrentMachineChar[toDo] = newKey;
-                        return res;
+                        if (dic.TryGetValue(toDo, out var res))
+                        {
+                            CurrentMachineChar[toDo] = newKey;
+                            return res;
+                        }
                     }
-                }
-                else
-                {
-                    Memorized[(prevChar, newKey)] = new Dictionary<int, ulong>();
-                }
+                    else
+                    {
+                        Memorized[(prevChar, newKey)] = new Dictionary<int, ulong>();
+                    }
 
-                var diff = DirectionPad[newKey] - DirectionPad[prevChar];
-                CurrentMachineChar[toDo] = newKey;
+                    var diff = DirectionPad[newKey] - DirectionPad[prevChar];
 
-                var horKey = diff.X > 0 ? '>' : '<';
-                var verKey = diff.Y > 0 ? 'v' : '^';
+                    var horKey = diff.X > 0 ? '>' : '<';
+                    var verKey = diff.Y > 0 ? 'v' : '^';
 
-                if (diff.X == 0 && diff.Y == 0)
-                {
+                    if (diff.X == 0 && diff.Y == 0)
+                    {
+                        if (toDo == 0)
+                            return 1;
+
+                        var val = GetDirKeys_Dir('A', toDo - 1);
+
+                        //Debug.Assert(memorizedValue == ulong.MaxValue || memorizedValue == val);
+                        Memorized[(prevChar, newKey)][toDo] = val;
+                        return val;
+                    }
+
+                    var manhattan = Math.Abs(diff.X) + Math.Abs(diff.Y);
+
                     if (toDo == 0)
-                        return 1;
+                        return (ulong)(manhattan + 1);
 
-                    var val = GetDirKeys_Dir('A', toDo - 1);
-
-                    //Debug.Assert(memorizedValue == ulong.MaxValue || memorizedValue == val);
-                    Memorized[(prevChar, newKey)][toDo] = val;
-                    return val;
-                }
-
-                var manhattan = Math.Abs(diff.X) + Math.Abs(diff.Y);
-
-                if (toDo == 0)
-                    return (ulong)(manhattan + 1);
-
-                if (manhattan == 1)
-                {
-                    var val = GetDirKeys_Dir(diff.Y != 0 ? verKey : horKey, toDo - 1) + GetDirKeys_Dir('A', toDo - 1);
-
-                    //Debug.Assert(memorizedValue == ulong.MaxValue || memorizedValue == val);
-                    Memorized[(prevChar, newKey)][toDo] = val;
-                    return val;
-                }
-
-                if (manhattan == 2)
-                {
-                    //if (diff.X == 0)
-                    //{
-                    //    var val = GetDirKeys_Dir(verKey, toDo - 1) + GetDirKeys_Dir(verKey, toDo - 1) + GetDirKeys_Dir('A', toDo - 1);
-
-                    //    //Debug.Assert(memorizedValue == ulong.MaxValue || memorizedValue == val);
-                    //    Memorized[(prevChar, newKey)][toDo] = val;
-                    //    return val;
-                    //}
-                    //else if (diff.Y == 0)
-                    //{
-                    //    var val = GetDirKeys_Dir(horKey, toDo - 1) + GetDirKeys_Dir(horKey, toDo - 1) + GetDirKeys_Dir('A', toDo - 1);
-
-                    //    //Debug.Assert(memorizedValue == ulong.MaxValue || memorizedValue == val);
-                    //    Memorized[(prevChar, newKey)][toDo] = val;
-                    //    return val;
-                    //}
-                    //else
-                    //{
-                    var val = GetDirKeys_Dir(verKey, toDo - 1) + GetDirKeys_Dir(horKey, toDo - 1) + GetDirKeys_Dir('A', toDo - 1);
-
-                    //Debug.Assert(memorizedValue == ulong.MaxValue || memorizedValue == val);
-                    Memorized[(prevChar, newKey)][toDo] = val;
-                    return val;
-                    //}
-                }
-
-                if (manhattan == 3)
-                {
-                    if (diff.X != -2)
+                    if (manhattan == 1)
                     {
-                        var val = GetDirKeys_Dir(horKey, toDo - 1) + GetDirKeys_Dir(horKey, toDo - 1) + GetDirKeys_Dir(verKey, toDo - 1) + GetDirKeys_Dir('A', toDo - 1);
+                        var val = GetDirKeys_Dir(diff.Y != 0 ? verKey : horKey, toDo - 1) + GetDirKeys_Dir('A', toDo - 1);
 
                         //Debug.Assert(memorizedValue == ulong.MaxValue || memorizedValue == val);
                         Memorized[(prevChar, newKey)][toDo] = val;
                         return val;
                     }
-                    //return horKey + horKey + verKey;
 
-                    //yield return horKey + verKey + horKey;
-
-                    if (diff.X != 2)
+                    if (manhattan == 2)
                     {
-                        var val = GetDirKeys_Dir(verKey, toDo - 1) + GetDirKeys_Dir(horKey, toDo - 1) + GetDirKeys_Dir(horKey, toDo - 1) + GetDirKeys_Dir('A', toDo - 1);
+                        //if (diff.X == 0)
+                        //{
+                        //var val1 = GetDirKeys_Dir(verKey, toDo - 1) + GetDirKeys_Dir(verKey, toDo - 1) + GetDirKeys_Dir('A', toDo - 1);
+
+                        //    //Debug.Assert(memorizedValue == ulong.MaxValue || memorizedValue == val);
+                        //    Memorized[(prevChar, newKey)][toDo] = val;
+                        //    return val;
+                        //}
+                        //else if (diff.Y == 0)
+                        //{
+                        //var val2 = GetDirKeys_Dir(horKey, toDo - 1) + GetDirKeys_Dir(horKey, toDo - 1) + GetDirKeys_Dir('A', toDo - 1);
+
+                        //    //Debug.Assert(memorizedValue == ulong.MaxValue || memorizedValue == val);
+                        //    Memorized[(prevChar, newKey)][toDo] = val;
+                        //    return val;
+                        //}
+                        //else
+                        //{
+                        var val = ulong.MaxValue;
+                        
+                        if(!(prevChar == '<' && newKey == '^'))
+                        {
+                            var val1 = GetDirKeys_Dir(verKey, toDo - 1) + GetDirKeys_Dir(horKey, toDo - 1) + GetDirKeys_Dir('A', toDo - 1);
+                            if (val1 < val)
+                            {
+                                val = val1;
+                            }
+                        }
+                        //GetDirKeys_Dir(verKey, toDo - 1) + GetDirKeys_Dir(horKey, toDo - 1) + GetDirKeys_Dir('A', toDo - 1);
+
+                        if (!(prevChar == '^' && newKey == '<'))
+                        {
+                            var val1 = GetDirKeys_Dir(horKey, toDo - 1) + GetDirKeys_Dir(verKey, toDo - 1) + GetDirKeys_Dir('A', toDo - 1);
+                            if(val1 < val)
+                            {
+                                val = val1;
+                            }
+                        }
 
                         //Debug.Assert(memorizedValue == ulong.MaxValue || memorizedValue == val);
                         Memorized[(prevChar, newKey)][toDo] = val;
                         return val;
+                        //}
                     }
-                    //return verKey + horKey + horKey;
+
+                    if (manhattan == 3)
+                    {
+                        if (diff.X != -2)
+                        {
+                            var val = GetDirKeys_Dir(horKey, toDo - 1) + GetDirKeys_Dir(horKey, toDo - 1) + GetDirKeys_Dir(verKey, toDo - 1) + GetDirKeys_Dir('A', toDo - 1);
+
+                            //Debug.Assert(memorizedValue == ulong.MaxValue || memorizedValue == val);
+                            Memorized[(prevChar, newKey)][toDo] = val;
+                            return val;
+                        }
+                        //return horKey + horKey + verKey;
+
+                        //yield return horKey + verKey + horKey;
+
+                        if (diff.X != 2)
+                        {
+                            var val = GetDirKeys_Dir(verKey, toDo - 1) + GetDirKeys_Dir(horKey, toDo - 1) + GetDirKeys_Dir(horKey, toDo - 1) + GetDirKeys_Dir('A', toDo - 1);
+
+                            //Debug.Assert(memorizedValue == ulong.MaxValue || memorizedValue == val);
+                            Memorized[(prevChar, newKey)][toDo] = val;
+                            return val;
+                        }
+                        //return verKey + horKey + horKey;
+                    }
+                }
+                finally
+                {
+                    CurrentMachineChar[toDo] = newKey;
                 }
 
                 throw new Exception("Invalid manhattan distance");
