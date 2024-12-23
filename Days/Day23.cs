@@ -106,7 +106,7 @@ namespace AoC24.Days
 
         private Loop ExtendLoop(Loop loop, int currentBest)
         {
-            Loop bestLoopSOFar = loop.Copy();
+            Loop bestLoopSOFar = loop;
 
             var connectionsToLoop = loop.Endpoints.First().Connections;
 
