@@ -110,9 +110,9 @@ namespace AoC24.Days
 
             var connectionsToLoop = loop.Endpoints.First().Connections;
 
-            var sec = loop.Endpoints.Skip(1).First();
-            var third = loop.Endpoints.Skip(2).First();
-            connectionsToLoop = connectionsToLoop.Where(x => !loop.Endpoints.Contains(x) && sec.Connections.Contains(x) && third.Connections.Contains(x)).ToHashSet();
+            //var sec = loop.Endpoints.Skip(1).First();
+            //var third = loop.Endpoints.Skip(2).First();
+            //connectionsToLoop = connectionsToLoop.Where(x => !loop.Endpoints.Contains(x) && sec.Connections.Contains(x) && third.Connections.Contains(x)).ToHashSet();
 
             if (connectionsToLoop.Count + loop.Endpoints.Count < currentBest)
                 return loop;
