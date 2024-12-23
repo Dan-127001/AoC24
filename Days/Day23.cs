@@ -88,7 +88,13 @@ namespace AoC24.Days
             {
                 var loop = loopsOf3[i];
 
-                var bestLoop = ExtendLoop(loop, best.Endpoints.Count);
+                var possibleAdds = loop.Endpoints.First().Connections;
+
+                var sec = loop.Endpoints.Skip(1).First();
+                var third = loop.Endpoints.Skip(2).First();
+                possibleAdds = possibleAdds.Where(x => !loop.Endpoints.Contains(x) && sec.Connections.Contains(x) && third.Connections.Contains(x)).ToHashSet();
+
+                var bestLoop = ExtendLoop(loop, best.Endpoints.Count, possibleAdds);
 
                 lock (this)
                 {
@@ -104,27 +110,22 @@ namespace AoC24.Days
             return string.Join(",", best.Endpoints.Select(x => x.Id).Order());
         }
 
-        private Loop ExtendLoop(Loop loop, int currentBest)
+        private Loop ExtendLoop(Loop loop, int currentBest, HashSet<Endpoint> possibleAdds)
         {
-            Loop bestLoopSOFar = loop;
 
-            var connectionsToLoop = loop.Endpoints.First().Connections;
-
-            //var sec = loop.Endpoints.Skip(1).First();
-            //var third = loop.Endpoints.Skip(2).First();
-            //connectionsToLoop = connectionsToLoop.Where(x => !loop.Endpoints.Contains(x) && sec.Connections.Contains(x) && third.Connections.Contains(x)).ToHashSet();
-
-            if (connectionsToLoop.Count + loop.Endpoints.Count < currentBest)
+            if (possibleAdds.Count + loop.Endpoints.Count <= currentBest)
                 return loop;
 
-            foreach (var endp in connectionsToLoop)
+            Loop bestLoopSOFar = loop.Copy();
+            foreach (var endp in possibleAdds)
             {
+                possibleAdds.Remove(endp);
                 if (loop.Endpoints.Contains(endp))
                     continue;
 
                 if (loop.TryAdd(endp))
                 {
-                    var nextLoop = ExtendLoop(loop, currentBest);
+                    var nextLoop = ExtendLoop(loop, currentBest, possibleAdds);
 
                     if (nextLoop != null && nextLoop.Endpoints.Count > bestLoopSOFar.Endpoints.Count)
                         bestLoopSOFar = nextLoop.Copy();
