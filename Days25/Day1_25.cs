@@ -57,18 +57,15 @@ namespace AoC24.Days25
 
                 number %= 100;
 
-                if (isLeft && number > currDialPos && currDialPos != 0)
+                if (isLeft && number >= currDialPos && currDialPos != 0)
                     countZeroes++;
-                else if (!isLeft && number > (100 - currDialPos) && currDialPos != 0)
+                else if (!isLeft && number >= (100 - currDialPos) && currDialPos != 0)
                     countZeroes++;
 
                 if (isLeft)
                     currDialPos = (currDialPos - number + 100) % 100;
                 else
                     currDialPos = (currDialPos + number) % 100;
-
-                if (currDialPos == 0)
-                    countZeroes++;
             }
 
             return countZeroes.ToString();
@@ -97,9 +94,6 @@ namespace AoC24.Days25
 
                 passedCount = currDialPos / 100;
                 passedCount = Math.Abs(passedCount);
-
-                //if (passedCount != 0 && startedOnZero && currDialPos < 0)
-                //    passedCount--;
 
                 currDialPos %= 100;
 
