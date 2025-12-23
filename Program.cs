@@ -1,5 +1,6 @@
 ﻿using AoC24.Benchmark;
 using AoC24.Days;
+using AoC24.Days25;
 using BenchmarkDotNet.Running;
 using System.Diagnostics;
 
@@ -7,10 +8,11 @@ using System.Diagnostics;
 //return;
 string inp = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "input.txt"));
 
-var day = new Day25();
+var day = new Day1_25();
 
 Console.WriteLine(day.Ch1(inp));
-Console.WriteLine(day.Ch2(inp));
+Console.WriteLine("MP " + day.Ch2_MartinPascal(inp));
+Console.WriteLine("D " + day.Ch2_Daniel(inp));
 
 while (Console.ReadLine() != "q")
 {
